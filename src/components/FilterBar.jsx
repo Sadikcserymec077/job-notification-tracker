@@ -66,6 +66,17 @@ const FilterBar = ({ onFilterChange }) => {
                         <option value="Indeed">Indeed</option>
                     </select>
 
+                    <select
+                        className="input w-auto h-10 text-sm py-0 pl-3 pr-8 min-w-[100px]"
+                        onChange={(e) => onFilterChange('status', e.target.value)}
+                    >
+                        <option value="">Status: All</option>
+                        <option value="Not Applied">Not Applied</option>
+                        <option value="Applied">Applied</option>
+                        <option value="Rejected">Rejected</option>
+                        <option value="Selected">Selected</option>
+                    </select>
+
                     {/* Sort Toggle */}
                     <div className="w-px h-6 bg-gray-300 mx-1 hidden md:block"></div>
 

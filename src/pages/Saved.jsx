@@ -1,14 +1,29 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import JobCard from '../components/JobCard';
 import JobModal from '../components/JobModal';
+import { getJobStatuses, updateJobStatus } from '../utils/status';
+import { calculateMatchScore } from '../utils/scoring';
 
 const Saved = () => {
     const [savedJobs, setSavedJobs] = useState([]);
+    const [statuses, setStatuses] = useState({});
     const [selectedJob, setSelectedJob] = useState(null);
+    const [preferences, setPreferences] = useState(null);
+    const [toast, setToast] = useState(null);
 
     useEffect(() => {
         const jobs = JSON.parse(localStorage.getItem('savedJobs')) || [];
         setSavedJobs(jobs);
+
+        // Load Statuses
+        setStatuses(getJobStatuses());
+
+        // Load Preferences for match scores
+        const savedPrefs = localStorage.getItem('jobTrackerPreferences');
+        if (savedPrefs) {
+            setPreferences(JSON.parse(savedPrefs));
+        }
     }, []);
 
     const handleRemove = (jobId) => {
@@ -17,8 +32,31 @@ const Saved = () => {
         localStorage.setItem('savedJobs', JSON.stringify(updated));
     };
 
+    const handleStatusChange = (jobId, newStatus) => {
+        const job = savedJobs.find(j => j.id === jobId);
+        if (!job) return;
+
+        // Update utility function
+        updateJobStatus(job, newStatus);
+
+        // Update local state
+        setStatuses(prev => ({ ...prev, [jobId]: newStatus }));
+
+        // Show Toast
+        setToast(`Status updated: ${newStatus}`);
+        setTimeout(() => setToast(null), 3000);
+    };
+
     return (
-        <div className="container mx-auto px-4 max-w-7xl min-h-[80vh] py-12">
+        <div className="container mx-auto px-4 max-w-7xl min-h-[80vh] py-12 relative">
+            {/* Toast Notification */}
+            {toast && (
+                <div className="fixed bottom-4 right-4 z-50 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 animate-fade-in">
+                    <span className="font-medium">{toast}</span>
+                    <button onClick={() => setToast(null)} className="text-gray-400 hover:text-white">&times;</button>
+                </div>
+            )}
+
             <div className="mb-10 text-center">
                 <h1 className="text-4xl font-serif font-bold text-primary mb-3">Saved Jobs</h1>
                 <p className="text-secondary text-lg">Your bookmarked opportunities.</p>
@@ -35,9 +73,9 @@ const Saved = () => {
                     <p className="text-secondary mb-6 max-w-md text-center">
                         Jobs you save from the dashboard will appear here for easy access.
                     </p>
-                    <a href="#/dashboard" className="btn btn-primary px-8">
+                    <Link to="/dashboard" className="btn btn-primary px-8">
                         Browse Jobs
-                    </a>
+                    </Link>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
@@ -45,9 +83,11 @@ const Saved = () => {
                         <JobCard
                             key={job.id}
                             job={job}
+                            matchScore={preferences ? calculateMatchScore(job, preferences) : 0}
                             onView={setSelectedJob}
-                            onSave={() => handleRemove(job.id)} // Reuse save/remove logic or just alert
-                        // Actually reusing JobCard for Saved context might need a different "Action" or just handle "Save" as "Unsave"
+                            onSave={() => handleRemove(job.id)}
+                            status={statuses[job.id]}
+                            onStatusChange={handleStatusChange}
                         />
                     ))}
                 </div>

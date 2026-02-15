@@ -4,11 +4,13 @@ import JobCard from '../components/JobCard';
 import FilterBar from '../components/FilterBar';
 import JobModal from '../components/JobModal';
 import { calculateMatchScore, parseSalary } from '../utils/scoring';
+import { getJobStatuses, updateJobStatus } from '../utils/status';
 import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
     const [jobs, setJobs] = useState([]);
     const [preferences, setPreferences] = useState(null);
+    const [statuses, setStatuses] = useState({});
     const [loading, setLoading] = useState(true);
     const [selectedJob, setSelectedJob] = useState(null);
     const [filters, setFilters] = useState({
@@ -17,29 +19,25 @@ const Dashboard = () => {
         mode: '',
         experience: '',
         source: '',
-        sort: 'latest' // latest, match, salary
+        status: '', // New filter
+        sort: 'latest'
     });
     const [showOnlyMatches, setShowOnlyMatches] = useState(false);
+    const [toast, setToast] = useState(null); // { message: string, visible: bool }
 
     // Load preferences and initial jobs
     useEffect(() => {
         const loadData = () => {
             setLoading(true);
 
-            // Load Preferences
             const savedPrefs = localStorage.getItem('jobTrackerPreferences');
             const prefs = savedPrefs ? JSON.parse(savedPrefs) : null;
-
-            // Convert older array format of preferredMode back to object if needed, 
-            // but strictly we just need access to it. Using object in Settings, 
-            // but array in storage is easier for scoring. 
-            // Scoring util expects array ["Remote"]. 
-            // Save payload in Settings.jsx ensures it IS an array.
             setPreferences(prefs);
 
-            // Simulate network request
+            // Load Statuses
+            setStatuses(getJobStatuses());
+
             setTimeout(() => {
-                // Calculate scores immediately
                 const jobsWithScores = jobsData.map(job => ({
                     ...job,
                     matchScore: prefs ? calculateMatchScore(job, prefs) : 0
@@ -69,13 +67,22 @@ const Dashboard = () => {
         if (filters.experience) result = result.filter(job => job.experience === filters.experience);
         if (filters.source) result = result.filter(job => job.source === filters.source);
 
-        // 2. Preferences Match Toggle
+        // 2. Status Filter
+        if (filters.status) {
+            if (filters.status === 'Not Applied') {
+                result = result.filter(job => !statuses[job.id] || statuses[job.id] === 'Not Applied');
+            } else {
+                result = result.filter(job => statuses[job.id] === filters.status);
+            }
+        }
+
+        // 3. Preferences Match Toggle
         if (showOnlyMatches && preferences) {
             const threshold = preferences.minMatchScore || 40;
             result = result.filter(job => job.matchScore >= threshold);
         }
 
-        // 3. Sorting
+        // 4. Sorting
         switch (filters.sort) {
             case 'match':
                 result.sort((a, b) => b.matchScore - a.matchScore);
@@ -85,16 +92,30 @@ const Dashboard = () => {
                 break;
             case 'latest':
             default:
-                // postedDaysAgo: 0 is newer than 10. So ascending sort.
                 result.sort((a, b) => a.postedDaysAgo - b.postedDaysAgo);
                 break;
         }
 
         return result;
-    }, [jobs, filters, showOnlyMatches, preferences]);
+    }, [jobs, filters, showOnlyMatches, preferences, statuses]);
 
     const handleFilterChange = (key, value) => {
         setFilters(prev => ({ ...prev, [key]: value }));
+    };
+
+    const handleStatusChange = (jobId, newStatus) => {
+        const job = jobs.find(j => j.id === jobId);
+        if (!job) return;
+
+        // Update utility function
+        updateJobStatus(job, newStatus);
+
+        // Update local state
+        setStatuses(prev => ({ ...prev, [jobId]: newStatus }));
+
+        // Show Toast
+        setToast(`Status updated: ${newStatus}`);
+        setTimeout(() => setToast(null), 3000);
     };
 
     const handleView = (job) => setSelectedJob(job);
@@ -110,7 +131,15 @@ const Dashboard = () => {
     };
 
     return (
-        <div className="min-h-screen pb-12">
+        <div className="min-h-screen pb-12 relative">
+            {/* Toast Notification */}
+            {toast && (
+                <div className="fixed bottom-4 right-4 z-50 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 animate-fade-in">
+                    <span className="font-medium">{toast}</span>
+                    <button onClick={() => setToast(null)} className="text-gray-400 hover:text-white">&times;</button>
+                </div>
+            )}
+
             {/* Header Section */}
             <div className="py-8 bg-[var(--color-bg)]">
                 <div className="container mx-auto px-4 max-w-7xl">
@@ -129,7 +158,6 @@ const Dashboard = () => {
                                         className="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer translate-x-1 checked:translate-x-5 checked:bg-accent transition-transform duration-200 top-1"
                                         style={{ backgroundColor: showOnlyMatches ? 'var(--color-accent)' : '#ccc' }}
                                     />
-
                                 </div>
                                 <span className="font-medium text-primary text-sm">
                                     Show only matches &gt; {preferences.minMatchScore}%
@@ -140,7 +168,6 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            {/* Preferences Not Set Banner */}
             {!preferences && !loading && (
                 <div className="container mx-auto px-4 max-w-7xl mb-8">
                     <div className="bg-gradient-to-r from-gray-900 to-gray-800 text-white p-6 rounded-xl flex flex-col md:flex-row justify-between items-center gap-4 shadow-lg">
@@ -154,8 +181,6 @@ const Dashboard = () => {
                     </div>
                 </div>
             )}
-
-            {/* Preferences Set but Toggle Off Banner? No, unnecessary noise. */}
 
             <FilterBar onFilterChange={handleFilterChange} />
 
@@ -179,7 +204,7 @@ const Dashboard = () => {
                         </p>
                         <button
                             onClick={() => {
-                                setFilters({ search: '', location: '', mode: '', experience: '', source: '', sort: 'latest' });
+                                setFilters({ search: '', location: '', mode: '', experience: '', source: '', status: '', sort: 'latest' });
                                 setShowOnlyMatches(false);
                             }}
                             className="btn btn-secondary"
@@ -193,9 +218,11 @@ const Dashboard = () => {
                             <JobCard
                                 key={job.id}
                                 job={job}
-                                matchScore={job.matchScore} // Pass the score
+                                matchScore={job.matchScore}
                                 onView={handleView}
                                 onSave={handleSave}
+                                status={statuses[job.id]}
+                                onStatusChange={handleStatusChange}
                             />
                         ))}
                     </div>

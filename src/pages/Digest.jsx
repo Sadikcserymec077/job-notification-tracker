@@ -2,13 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import jobsData from '../data/jobs';
 import { calculateMatchScore } from '../utils/scoring';
+import { getStatusLog } from '../utils/status';
 
 const Digest = () => {
     const [digest, setDigest] = useState(null);
+    const [statusLog, setStatusLog] = useState([]);
     const [hasPreferences, setHasPreferences] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        // Load Status Log
+        setStatusLog(getStatusLog());
+
         // Check preferences
         const savedPrefs = localStorage.getItem('jobTrackerPreferences');
         if (!savedPrefs) {
@@ -45,11 +50,10 @@ const Digest = () => {
             matchScore: calculateMatchScore(job, prefs)
         }));
 
-        // 3. Filter minimum threadhold (e.g. > 0 or > 40? User didn't specify, but "Top 10" implies best available)
-        // Let's filter at least > 0 to be relevant.
+        // 3. Filter minimum threadhold
         const relevantJobs = scoredJobs.filter(j => j.matchScore > 0);
 
-        // 4. Sort: Match Score DESC, then Date ASC (postedDaysAgo ASC)
+        // 4. Sort: Match Score DESC, then Date ASC
         relevantJobs.sort((a, b) => {
             if (b.matchScore !== a.matchScore) return b.matchScore - a.matchScore;
             return a.postedDaysAgo - b.postedDaysAgo;
@@ -140,6 +144,36 @@ const Digest = () => {
                     <p className="text-xs text-muted mt-4">
                         Demo Mode: Daily 9AM trigger simulated manually.
                     </p>
+                </div>
+            )}
+
+            {/* Status History Section */}
+            {statusLog.length > 0 && (
+                <div className="mb-12 animate-fade-in">
+                    <h3 className="text-lg font-serif font-bold text-primary mb-4 border-b pb-2">Recent Status Updates</h3>
+                    <div className="bg-white rounded-lg border overflow-hidden">
+                        {statusLog.map((log, index) => (
+                            <div key={index} className="p-4 border-b last:border-0 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                                <div>
+                                    <h4 className="font-bold text-sm text-primary">{log.title}</h4>
+                                    <p className="text-xs text-secondary">{log.company}</p>
+                                </div>
+                                <div className="text-right">
+                                    <span className={`inline-block text-xs font-bold px-2 py-1 rounded 
+                                        ${log.status === 'Applied' ? 'bg-blue-100 text-blue-800' : ''}
+                                        ${log.status === 'Rejected' ? 'bg-red-100 text-red-800' : ''}
+                                        ${log.status === 'Selected' ? 'bg-green-100 text-green-800' : ''}
+                                        ${log.status === 'Not Applied' ? 'bg-gray-100 text-gray-800' : ''}
+                                    `}>
+                                        {log.status}
+                                    </span>
+                                    <p className="text-[10px] text-gray-400 mt-1">
+                                        {new Date(log.date).toLocaleDateString()}
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             )}
 
