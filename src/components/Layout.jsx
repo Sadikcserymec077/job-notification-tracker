@@ -9,6 +9,7 @@ const Layout = () => {
         { path: '/saved', label: 'Saved' },
         { path: '/digest', label: 'Digest' },
         { path: '/settings', label: 'Settings' },
+        { path: '/jt/07-test', label: 'Test' },
         { path: '/proof', label: 'Proof' },
     ];
 
