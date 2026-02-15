@@ -38,7 +38,7 @@ const Layout = () => {
                         {/* Logo */}
                         <div className="flex items-center">
                             <span className="text-xl font-serif font-bold text-accent tracking-tight">
-                                JobNotify
+                                Job Notification Tracker
                             </span>
                         </div>
 
