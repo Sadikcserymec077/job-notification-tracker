@@ -1,17 +1,40 @@
 import React from 'react';
+import { getScoreColorClass } from '../utils/scoring';
 
-const JobCard = ({ job, onView, onSave }) => {
+const JobCard = ({ job, matchScore, onView, onSave }) => {
     return (
-        <div className="card bg-surface border hover:border-accent transition-colors duration-200">
+        <div className="card bg-surface border hover:border-accent transition-colors duration-200 relative">
             <div className="flex justify-between items-start mb-4">
                 <div>
-                    <h3 className="text-xl font-serif font-bold text-primary">{job.title}</h3>
+                    <h3 className="text-xl font-serif font-bold text-primary max-w-[80%]">{job.title}</h3>
                     <p className="text-secondary font-medium">{job.company}</p>
                 </div>
+
+                {/* Match Score Badge */}
+                {typeof matchScore === 'number' && (
+                    <div className={`flex flex-col items-center px-2 py-1 rounded-md border text-xs font-bold leading-tight ${getScoreColorClass(matchScore)}`}>
+                        <span>{matchScore}%</span>
+                        <span className="text-[10px] font-normal opacity-80">Match</span>
+                    </div>
+                )}
+
+                {/* Source Badge (moved slightly if score exists, actually keeping it distinct is better? 
+            Let's keep source badge but maybe stack them or just put source elsewhere?
+            The design says "Display matchScore as a badge".
+            I'll put it top-right.
+            I'll move the Source Badge to the bottom row or next to title?
+            Let's put Source Badge below Match Score or just keep it simple.
+            Actually, the original layout had source badge top right.
+            I'll put Match Score top right, and Source Badge as a small text or badge below it or next to it.
+        */}
+            </div>
+
+            {/* Source Badge moved to act as a tag */}
+            <div className="absolute top-4 right-16">
                 <span className="badge badge-neutral text-xs">{job.source}</span>
             </div>
 
-            <div className="space-y-2 mb-6">
+            <div className="space-y-2 mb-6 mt-2">
                 <div className="flex items-center gap-2 text-sm text-secondary">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />

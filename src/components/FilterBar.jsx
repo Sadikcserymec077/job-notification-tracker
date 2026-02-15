@@ -2,14 +2,14 @@ import React from 'react';
 
 const FilterBar = ({ onFilterChange }) => {
     return (
-        <div className="bg-surface border-b sticky top-[64px] z-40 py-4 mb-8">
+        <div className="bg-surface border-b sticky top-[64px] z-40 py-4 mb-8 shadow-sm">
             <div className="container mx-auto px-4 max-w-7xl flex flex-col md:flex-row gap-4 items-center justify-between">
 
                 {/* Search */}
-                <div className="relative w-full md:w-1/3">
+                <div className="relative w-full md:w-1/4">
                     <input
                         type="text"
-                        placeholder="Search by role or company..."
+                        placeholder="Search role/company..."
                         className="input pl-10 h-10 text-sm"
                         onChange={(e) => onFilterChange('search', e.target.value)}
                     />
@@ -19,9 +19,9 @@ const FilterBar = ({ onFilterChange }) => {
                 </div>
 
                 {/* Filters */}
-                <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 items-center">
+                <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 items-center no-scrollbar">
                     <select
-                        className="input w-auto h-10 text-sm py-0 pl-3 pr-8 min-w-[120px]"
+                        className="input w-auto h-10 text-sm py-0 pl-3 pr-8 min-w-[100px]"
                         onChange={(e) => onFilterChange('location', e.target.value)}
                     >
                         <option value="">Location</option>
@@ -36,7 +36,7 @@ const FilterBar = ({ onFilterChange }) => {
                     </select>
 
                     <select
-                        className="input w-auto h-10 text-sm py-0 pl-3 pr-8 min-w-[120px]"
+                        className="input w-auto h-10 text-sm py-0 pl-3 pr-8 min-w-[100px]"
                         onChange={(e) => onFilterChange('mode', e.target.value)}
                     >
                         <option value="">Mode</option>
@@ -46,10 +46,10 @@ const FilterBar = ({ onFilterChange }) => {
                     </select>
 
                     <select
-                        className="input w-auto h-10 text-sm py-0 pl-3 pr-8 min-w-[120px]"
+                        className="input w-auto h-10 text-sm py-0 pl-3 pr-8 min-w-[100px]"
                         onChange={(e) => onFilterChange('experience', e.target.value)}
                     >
-                        <option value="">Experience</option>
+                        <option value="">Exp.</option>
                         <option value="Fresher">Fresher</option>
                         <option value="0-1 Years">0-1 Years</option>
                         <option value="1-3 Years">1-3 Years</option>
@@ -57,13 +57,25 @@ const FilterBar = ({ onFilterChange }) => {
                     </select>
 
                     <select
-                        className="input w-auto h-10 text-sm py-0 pl-3 pr-8 min-w-[120px]"
+                        className="input w-auto h-10 text-sm py-0 pl-3 pr-8 min-w-[100px]"
                         onChange={(e) => onFilterChange('source', e.target.value)}
                     >
                         <option value="">Source</option>
                         <option value="LinkedIn">LinkedIn</option>
                         <option value="Naukri">Naukri</option>
                         <option value="Indeed">Indeed</option>
+                    </select>
+
+                    {/* Sort Toggle */}
+                    <div className="w-px h-6 bg-gray-300 mx-1 hidden md:block"></div>
+
+                    <select
+                        className="input w-auto h-10 text-sm py-0 pl-3 pr-8 min-w-[120px] font-medium text-primary border-accent/20 bg-accent/5 focus:border-accent"
+                        onChange={(e) => onFilterChange('sort', e.target.value)}
+                    >
+                        <option value="latest">Sort: Latest</option>
+                        <option value="match">Sort: Match Score</option>
+                        <option value="salary">Sort: Salary</option>
                     </select>
                 </div>
             </div>
