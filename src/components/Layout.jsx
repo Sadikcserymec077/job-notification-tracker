@@ -10,7 +10,7 @@ const Layout = () => {
         { path: '/digest', label: 'Digest' },
         { path: '/settings', label: 'Settings' },
         { path: '/jt/07-test', label: 'Test' },
-        { path: '/proof', label: 'Proof' },
+        { path: '/jt/proof', label: 'Proof' },
     ];
 
     const getLinkClasses = ({ isActive }) => {
