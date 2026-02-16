@@ -2,7 +2,7 @@ import React from 'react';
 
 const FilterBar = ({ onFilterChange }) => {
     return (
-        <div className="bg-surface border-b sticky top-[64px] z-40 py-4 mb-8 shadow-sm">
+        <div className="bg-surface border-b sticky top-[64px] z-40 py-4 mb-8">
             <div className="container mx-auto px-4 max-w-7xl flex flex-col md:flex-row gap-4 items-center justify-between">
 
                 {/* Search */}

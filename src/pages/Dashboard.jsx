@@ -134,7 +134,7 @@ const Dashboard = () => {
         <div className="min-h-screen pb-12 relative">
             {/* Toast Notification */}
             {toast && (
-                <div className="fixed bottom-4 right-4 z-50 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 animate-fade-in">
+                <div className="fixed bottom-4 right-4 z-50 bg-gray-800 text-white px-6 py-3 rounded border flex items-center gap-3 animate-fade-in">
                     <span className="font-medium">{toast}</span>
                     <button onClick={() => setToast(null)} className="text-gray-400 hover:text-white">&times;</button>
                 </div>
@@ -170,12 +170,12 @@ const Dashboard = () => {
 
             {!preferences && !loading && (
                 <div className="container mx-auto px-4 max-w-7xl mb-8">
-                    <div className="bg-gradient-to-r from-gray-900 to-gray-800 text-white p-6 rounded-xl flex flex-col md:flex-row justify-between items-center gap-4 shadow-lg">
+                    <div className="bg-surface p-6 rounded border flex flex-col md:flex-row justify-between items-center gap-4">
                         <div>
-                            <h3 className="text-xl font-serif font-bold mb-1">Set your preferences</h3>
-                            <p className="text-gray-300">Activate intelligent matching to find the perfect role matching your skills.</p>
+                            <h3 className="text-xl font-serif font-bold mb-1 text-primary">Set your preferences</h3>
+                            <p className="text-secondary">Activate intelligent matching to find the perfect role matching your skills.</p>
                         </div>
-                        <Link to="/settings" className="btn bg-white text-gray-900 hover:bg-gray-100 border-none font-bold px-6">
+                        <Link to="/settings" className="btn btn-primary px-6">
                             Configure Matching
                         </Link>
                     </div>
@@ -186,9 +186,9 @@ const Dashboard = () => {
 
             <div className="container mx-auto px-4 max-w-7xl">
                 {loading ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {[1, 2, 3, 4, 5, 6].map(n => (
-                            <div key={n} className="h-64 bg-gray-200 rounded-lg"></div>
+                            <div key={n} className="h-64 bg-gray-200 rounded"></div>
                         ))}
                     </div>
                 ) : filteredJobs.length === 0 ? (

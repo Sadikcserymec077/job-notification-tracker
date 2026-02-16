@@ -136,7 +136,7 @@ const Digest = () => {
                     <button
                         onClick={generateDigest}
                         disabled={loading}
-                        className="btn btn-primary text-lg px-8 py-4 h-auto shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all"
+                        className="btn btn-primary text-lg px-8 py-4 h-auto transition-all"
                     >
                         {loading ? 'Generating...' : "Generate Today's 9AM Digest (Simulated)"}
                     </button>

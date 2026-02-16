@@ -1,19 +1,21 @@
 import React, { useEffect } from 'react';
 
 const JobModal = ({ job, isOpen, onClose }) => {
-    if (!isOpen || !job) return null;
-
+    // useEffect MUST be called before any conditional returns (React Rules of Hooks)
     useEffect(() => {
+        if (!isOpen) return;
         const handleEsc = (e) => {
             if (e.key === 'Escape') onClose();
         };
         window.addEventListener('keydown', handleEsc);
         return () => window.removeEventListener('keydown', handleEsc);
-    }, [onClose]);
+    }, [isOpen, onClose]);
+
+    if (!isOpen || !job) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 animate-fade-in backdrop-blur-sm">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 animate-fade-in">
+            <div className="bg-white rounded border w-full max-w-2xl max-h-[90vh] overflow-y-auto">
 
                 {/* Header */}
                 <div className="flex justify-between items-start p-6 border-b sticky top-0 bg-white z-10">
@@ -23,7 +25,7 @@ const JobModal = ({ job, isOpen, onClose }) => {
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                        className="p-2 hover:bg-gray-100 rounded transition-colors"
                     >
                         <svg className="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -32,7 +34,7 @@ const JobModal = ({ job, isOpen, onClose }) => {
                 </div>
 
                 {/* Body */}
-                <div className="p-6 space-y-6">
+                <div className="p-6 space-y-3">
 
                     <div className="grid grid-cols-2 gap-4 text-sm text-secondary">
                         <div className="flex items-center gap-2">
@@ -73,7 +75,7 @@ const JobModal = ({ job, isOpen, onClose }) => {
                             {job.skills.map((skill, index) => (
                                 <span
                                     key={index}
-                                    className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium"
+                                    className="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm font-medium"
                                 >
                                     {skill}
                                 </span>
@@ -84,7 +86,7 @@ const JobModal = ({ job, isOpen, onClose }) => {
                 </div>
 
                 {/* Footer */}
-                <div className="p-6 border-t bg-gray-50 flex justify-end gap-4 rounded-b-lg">
+                <div className="p-6 border-t bg-gray-50 flex justify-end gap-4">
                     <button
                         onClick={onClose}
                         className="btn btn-secondary px-6"
